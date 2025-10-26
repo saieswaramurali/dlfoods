@@ -33,11 +33,12 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
         </button>
 
         <div className="grid md:grid-cols-2 gap-8 p-8">
-          <div className={`bg-gradient-to-br ${product.bgColor} rounded-2xl p-8 flex items-center justify-center border-2 ${product.borderColor}`}>
-            <div className="text-center space-y-2">
-              <div className="text-8xl">📦</div>
-              <p className="text-gray-400 text-sm">{product.image}</p>
-            </div>
+          <div className={`bg-gradient-to-br ${product.bgColor} rounded-2xl p-8 flex items-center justify-center border-2 ${product.borderColor} overflow-hidden`}>
+            <img 
+              src={product.image} 
+              alt={product.name}
+              className="w-full h-full object-contain max-h-80 hover:scale-105 transition-transform duration-300"
+            />
           </div>
 
           <div className="space-y-6">
@@ -88,7 +89,7 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
             <div className="border-t pt-6">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-3xl font-bold text-gray-900">{product.price}</span>
-                <span className="text-sm text-gray-500">Free shipping on orders over $50</span>
+                <span className="text-sm text-gray-500">Free shipping on orders over ₹500</span>
               </div>
 
               <div className="space-y-3">

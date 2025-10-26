@@ -1,4 +1,5 @@
 import { Heart, Leaf, Award, Users } from 'lucide-react';
+import faceOfBrandImage from '../assets/face_of_brand.jpeg';
 
 export default function About() {
   const features = [
@@ -34,18 +35,21 @@ export default function About() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
-          <div className="relative">
-            <div className="w-full h-96 bg-gradient-to-br from-purple-100 to-orange-100 rounded-3xl shadow-xl flex items-center justify-center">
-              <div className="text-center space-y-2">
-                <div className="text-6xl">👤</div>
-                <p className="text-gray-500 text-sm">Brand Face Placeholder</p>
-                <p className="text-gray-400 text-xs px-4">Space reserved for founder/brand ambassador image</p>
-              </div>
+        <div className="relative grid md:grid-cols-2 gap-12 items-center mb-16">
+          {/* Background gradient for entire section */}
+          <div className="absolute inset-0 bg-gradient-to-bl from-amber-300/40 via-orange-200/20 to-transparent rounded-3xl"></div>
+          
+          <div className="relative z-10 flex justify-center">
+            <div className="w-80 h-80 rounded-full overflow-hidden border-4 border-white shadow-2xl">
+              <img 
+                src={faceOfBrandImage} 
+                alt="Face of DL Foods Brand" 
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="relative z-10 space-y-6">
             <h3 className="text-3xl font-bold text-gray-900">Our Mission</h3>
             <p className="text-gray-600 leading-relaxed">
               At DL Foods, we understand the unique nutritional needs of women. We've created a line of products that support your vitality, energy, and overall wellness as you navigate life's journey.
