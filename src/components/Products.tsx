@@ -1,5 +1,8 @@
+import { useEffect } from 'react';
 import { ShoppingCart, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
+import { useToastContext } from '../context/ToastContext';
 
 // Import product images
 import mixedMasalaImage from '../assets/product_images/mixed masala mockup.png';
@@ -22,6 +25,14 @@ interface Product {
 }
 
 export default function Products() {
+  const { addToCart } = useCart();
+  const { showSuccess } = useToastContext();
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const products: Product[] = [
     {
       id: 1,
@@ -133,21 +144,26 @@ export default function Products() {
                 <h3 className="text-xl font-bold text-gray-900">{product.name}</h3>
                 <p className="text-gray-600 text-sm line-clamp-2">{product.description}</p>
 
-                <div className="flex items-center justify-between pt-4">
-                  <span className="text-2xl font-bold text-gray-900">{product.price}</span>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      // Add to cart functionality here
-                      console.log('Add to cart:', product.name);
-                    }}
-                    className="flex items-center space-x-2 bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition-colors shadow-md"
-                  >
-                    <ShoppingCart className="w-4 h-4" />
-                    <span>Add</span>
-                  </button>
-                </div>
+                                  <div className="flex items-center justify-between pt-4">
+                    <span className="text-2xl font-bold text-gray-900">{product.price}</span>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        addToCart({
+                          id: product.id,
+                          name: product.name,
+                          price: product.price,
+                          image: product.image
+                        });
+                        showSuccess(`${product.name} added to cart! 🛒`);
+                      }}
+                      className="flex items-center space-x-2 bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition-colors shadow-md"
+                    >
+                      <ShoppingCart className="w-4 h-4" />
+                      <span>Add</span>
+                    </button>
+                  </div>
               </div>
             </Link>
           ))}

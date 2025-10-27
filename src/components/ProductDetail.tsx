@@ -1,5 +1,8 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, ShoppingCart, Star, Check, Share2 } from 'lucide-react';
+import { useCart } from '../context/CartContext';
+import { useToastContext } from '../context/ToastContext';
+import { useEffect } from 'react';
 
 // Import product images
 import mixedMasalaImage from '../assets/product_images/mixed masala mockup.png';
@@ -99,6 +102,13 @@ const products: Product[] = [
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
+  const { showSuccess } = useToastContext();
+  
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   
   const product = products.find(p => p.slug === slug);
 
@@ -199,7 +209,18 @@ export default function ProductDetail() {
                 </div>
 
                 <div className="space-y-4">
-                  <button className="w-full flex items-center justify-center space-x-2 bg-amber-600 text-white px-6 py-4 rounded-lg hover:bg-amber-700 transition-colors shadow-lg text-lg font-semibold">
+                  <button 
+                    onClick={() => {
+                      addToCart({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        image: product.image
+                      });
+                      showSuccess(`${product.name} added to cart! 🛒`);
+                    }}
+                    className="w-full flex items-center justify-center space-x-2 bg-amber-600 text-white px-6 py-4 rounded-lg hover:bg-amber-700 transition-colors shadow-lg text-lg font-semibold"
+                  >
                     <ShoppingCart className="w-5 h-5" />
                     <span>Add to Cart</span>
                   </button>

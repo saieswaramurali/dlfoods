@@ -35,9 +35,9 @@ export default function About() {
           </p>
         </div>
 
-        <div className="relative grid md:grid-cols-2 gap-12 items-center mb-16">
-          {/* Background gradient for entire section */}
-          <div className="absolute inset-0 bg-gradient-to-bl from-amber-300/40 via-orange-200/20 to-transparent rounded-3xl"></div>
+        <div className="relative grid md:grid-cols-2 gap-16 items-center mb-16 px-8 py-12">
+          {/* Background gradient for entire section - larger area */}
+          <div className="absolute inset-0 bg-gradient-to-bl from-amber-300/40 via-orange-200/20 to-transparent rounded-3xl -mx-8 -my-8"></div>
           
           <div className="relative z-10 flex justify-center">
             <div className="w-80 h-80 rounded-full overflow-hidden border-4 border-white shadow-2xl">
