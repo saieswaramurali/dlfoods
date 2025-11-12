@@ -1,7 +1,13 @@
+import { useEffect } from 'react';
 import { Heart, Leaf, Award, Users } from 'lucide-react';
-import faceOfBrandImage from '../assets/face_of_brand.jpeg';
+import faceOfBrandImage from '../assets/face_of_brand.jpg';
 
 export default function About() {
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const features = [
     {
       icon: <Leaf className="w-8 h-8" />,
@@ -40,7 +46,7 @@ export default function About() {
           <div className="absolute inset-0 bg-gradient-to-bl from-amber-300/40 via-orange-200/20 to-transparent rounded-3xl -mx-8 -my-8"></div>
           
           <div className="relative z-10 flex justify-center">
-            <div className="w-80 h-80 rounded-full overflow-hidden border-4 border-white shadow-2xl">
+            <div className="w-80 h-80 rounded-3xl overflow-hidden border-4 border-white shadow-2xl">
               <img 
                 src={faceOfBrandImage} 
                 alt="Face of DL Foods Brand" 

@@ -1,9 +1,14 @@
+// NAVBAR DESIGN STYLES - Easy to switch between:
+// Current: Floating rounded navbar with curved edges and rich brownish gradient, compact pill-shaped indicators
+// Alternative: Full-width navbar (remove mx-4 mt-3 and rounded-full classes) with same gradient theme
+
 import { ShoppingCart, User, ChevronDown, LogOut, Package, Settings } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import LoginModal from './LoginModal';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import logo from '../assets/logo.png';
 
 export default function Navbar() {
   const location = useLocation();
@@ -49,39 +54,45 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className="fixed top-0 w-full bg-white shadow-md z-50">
+    <nav className="fixed top-0 w-full bg-gradient-to-r from-amber-900 via-amber-800 to-yellow-800 shadow-xl z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20 py-3">
           <div className="flex items-center">
-            <Link to="/" className="text-2xl font-bold text-amber-700 hover:text-amber-800 transition-colors">
-              DL Foods
+            <Link to="/" className="flex items-center hover:opacity-80 transition-all duration-300 hover:scale-105">
+              <img src={logo} alt="DL Foods Logo" className="h-16 w-16" />
             </Link>
-          </div>
-
-          <div className="hidden md:flex items-center space-x-8">
+          </div>          <div className="hidden md:flex items-center space-x-8">
             <Link 
               to="/" 
-              className={`hover:text-amber-600 transition-colors ${isActive('#home') ? 'text-amber-600 font-medium' : 'text-gray-700'}`}
+              className={`px-4 py-2 rounded-full transition-all duration-300 ${
+                isActive('#home') 
+                  ? 'bg-amber-200 text-amber-900 font-medium shadow-md' 
+                  : 'text-amber-100 hover:text-white hover:bg-amber-700/30'
+              }`}
               onClick={() => handleNavClick('#home')}
             >
               Home
             </Link>
             <Link 
               to="/products" 
-              className={`hover:text-amber-600 transition-colors ${isActive('#products') ? 'text-amber-600 font-medium' : 'text-gray-700'}`}
+              className={`px-4 py-2 rounded-full transition-all duration-300 ${
+                isActive('#products') 
+                  ? 'bg-amber-200 text-amber-900 font-medium shadow-md' 
+                  : 'text-amber-100 hover:text-white hover:bg-amber-700/30'
+              }`}
             >
               Products
             </Link>
             <Link 
               to="/#about" 
-              className="text-gray-700 hover:text-amber-600 transition-colors"
+              className="px-4 py-2 rounded-full text-amber-100 hover:text-white hover:bg-amber-700/30 transition-all duration-300"
               onClick={() => handleNavClick('#about')}
             >
               About
             </Link>
             <Link 
               to="/#contact" 
-              className="text-gray-700 hover:text-amber-600 transition-colors"
+              className="px-4 py-2 rounded-full text-amber-100 hover:text-white hover:bg-amber-700/30 transition-all duration-300"
               onClick={() => handleNavClick('#contact')}
             >
               Contact
@@ -91,11 +102,11 @@ export default function Navbar() {
           <div className="flex items-center space-x-4">
             <Link 
               to="/cart"
-              className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="relative p-2 hover:bg-amber-700/30 rounded-full transition-colors"
             >
-              <ShoppingCart className="w-5 h-5 text-gray-700" />
+              <ShoppingCart className="w-5 h-5 text-amber-100" />
               {getTotalItems() > 0 && (
-                <span className="absolute -top-1 -right-1 bg-amber-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-amber-200 text-amber-900 text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold">
                   {getTotalItems()}
                 </span>
               )}
@@ -104,7 +115,7 @@ export default function Navbar() {
             {user ? (
               <div className="relative" ref={dropdownRef}>
                 <button 
-                  className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="flex items-center space-x-2 p-2 hover:bg-amber-700/30 rounded-lg transition-colors"
                   onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                 >
                   {user.profileImage ? (
@@ -114,12 +125,12 @@ export default function Navbar() {
                       className="w-8 h-8 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
-                      <User className="w-4 h-4 text-amber-600" />
+                    <div className="w-8 h-8 bg-amber-200 rounded-full flex items-center justify-center">
+                      <User className="w-4 h-4 text-amber-900" />
                     </div>
                   )}
-                  <span className="text-gray-700 font-medium hidden sm:block">{user.name}</span>
-                  <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isProfileDropdownOpen ? 'rotate-180' : ''}`} />
+                  <span className="text-amber-100 font-medium">{user.name}</span>
+                  <ChevronDown className="w-4 h-4 text-amber-100" />
                 </button>
 
                 {isProfileDropdownOpen && (
@@ -170,7 +181,7 @@ export default function Navbar() {
               </div>
             ) : (
               <button 
-                className="flex items-center space-x-2 bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition-colors"
+                className="flex items-center space-x-2 bg-amber-200 text-amber-900 px-4 py-2 rounded-full hover:bg-amber-100 transition-colors font-medium shadow-md"
                 onClick={() => setIsLoginModalOpen(true)}
               >
                 <User className="w-4 h-4" />

@@ -1,5 +1,6 @@
 import { Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import logo from '../assets/logo.png';
 
 export default function Footer() {
   return (
@@ -7,7 +8,9 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div className="space-y-4">
-            <h3 className="text-2xl font-bold text-amber-400">DL Foods</h3>
+            <div className="flex items-center">
+              <img src={logo} alt="DL Foods Logo" className="h-16 w-16" />
+            </div>
             <p className="text-gray-400">
               Premium nutrition for women 25+. Empowering your wellness journey.
             </p>
