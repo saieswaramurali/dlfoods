@@ -218,24 +218,9 @@ export default function CheckoutPage() {
       }
 
       // Call API to create order
-      const response = await fetch('/api/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(orderData)
-      });
+      const data = await api.orders.create(orderData);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          showError('Authentication expired. Please log in again.');
-          localStorage.removeItem('token');
-          navigate('/');
-          return;
-        }
+      if (!data.success) {
         throw new Error(data.message || 'Failed to place order');
       }
 
