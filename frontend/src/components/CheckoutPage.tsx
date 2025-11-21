@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useToastContext } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { getProductImageWithFallback } from '../utils/productImages';
+import { api } from '../utils/api';
 
 interface AddressForm {
   fullName: string;

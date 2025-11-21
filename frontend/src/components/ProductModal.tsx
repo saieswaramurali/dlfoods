@@ -1,4 +1,5 @@
 import { X, ShoppingCart, Star, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface Product {
   id: number;
@@ -20,6 +21,8 @@ interface ProductModalProps {
 }
 
 export default function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
+  const navigate = useNavigate();
+  
   if (!isOpen || !product) return null;
 
   return (
@@ -97,7 +100,13 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
                   <ShoppingCart className="w-5 h-5" />
                   <span>Add to Cart</span>
                 </button>
-                <button className="w-full bg-white text-amber-600 px-6 py-3 rounded-lg hover:bg-amber-50 transition-colors border-2 border-amber-600">
+                <button 
+                  onClick={() => {
+                    // Add to cart and redirect to cart page
+                    navigate('/cart');
+                  }}
+                  className="w-full bg-white text-amber-600 px-6 py-3 rounded-lg hover:bg-amber-50 transition-colors border-2 border-amber-600"
+                >
                   Buy Now
                 </button>
               </div>

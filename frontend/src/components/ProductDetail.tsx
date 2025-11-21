@@ -230,7 +230,22 @@ export default function ProductDetail() {
                     <ShoppingCart className="w-5 h-5" />
                     <span>Add to Cart</span>
                   </button>
-                  <button className="w-full bg-white text-amber-600 px-6 py-3 rounded-lg hover:bg-amber-50 transition-colors border-2 border-amber-600 font-semibold">
+                  <button 
+                    onClick={async () => {
+                      try {
+                        await addToCart(product.id, 1);
+                        showSuccess('Product added to cart!');
+                        navigate('/cart');
+                      } catch (error) {
+                        const errorMessage = error instanceof Error ? error.message : 'Failed to add item to cart';
+                        showError(errorMessage);
+                        if (errorMessage.includes('sign in') || errorMessage.includes('log in')) {
+                          openLoginModal();
+                        }
+                      }
+                    }}
+                    className="w-full bg-white text-amber-600 px-6 py-3 rounded-lg hover:bg-amber-50 transition-colors border-2 border-amber-600 font-semibold"
+                  >
                     Buy Now
                   </button>
                 </div>
