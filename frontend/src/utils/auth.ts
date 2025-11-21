@@ -1,5 +1,5 @@
 // Authentication utilities for managing auth state
-import { api } from './api';
+import { api, API_CONFIG } from './api';
 
 export interface AuthUser {
   id: string;
@@ -70,7 +70,7 @@ export class AuthService {
 
   // Initialize Google OAuth
   static initiateGoogleAuth(): void {
-    const googleAuthUrl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/auth/google`;
+    const googleAuthUrl = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.GOOGLE}`;
     window.location.href = googleAuthUrl;
   }
 
