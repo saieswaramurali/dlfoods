@@ -227,13 +227,15 @@ export default function CheckoutPage() {
 
       // Order placed successfully
       const order = data.data.order;
-      showSuccess(`🎉 Order placed successfully! Order ID: ${order.orderId}`, 3000);
       
-      // Clear cart and redirect to order confirmation
+      // Clear cart first
       await clearCart();
-      setTimeout(() => {
-        navigate(`/orders/${order.orderId}`);
-      }, 2000);
+      
+      // Show success and redirect immediately
+      showSuccess(`🎉 Order placed successfully! Order ID: ${order.orderId}`, 5000);
+      
+      // Redirect to order confirmation
+      navigate(`/orders/${order.orderId}`);
 
     } catch (error) {
       console.error('Order placement error:', error);

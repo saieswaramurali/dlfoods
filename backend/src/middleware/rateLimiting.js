@@ -3,7 +3,7 @@ import rateLimit from 'express-rate-limit';
 // General API rate limiting
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 500, // Limit each IP to 500 requests per windowMs (5x increased)
   message: {
     success: false,
     message: 'Too many requests from this IP, please try again later.'
@@ -15,7 +15,7 @@ const generalLimiter = rateLimit({
 // Auth routes rate limiting (more strict)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 auth requests per windowMs
+  max: 25, // Limit each IP to 25 auth requests per windowMs (5x increased)
   message: {
     success: false,
     message: 'Too many authentication attempts, please try again later.'
@@ -26,7 +26,7 @@ const authLimiter = rateLimit({
 // Order creation rate limiting
 const orderLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 3, // Limit each IP to 3 order creations per minute
+  max: 15, // Limit each IP to 15 order creations per minute (5x increased)
   message: {
     success: false,
     message: 'Too many order attempts, please wait before trying again.'
@@ -36,7 +36,7 @@ const orderLimiter = rateLimit({
 // Review submission rate limiting
 const reviewLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 5, // Limit each IP to 5 reviews per hour
+  max: 25, // Limit each IP to 25 reviews per hour (5x increased)
   message: {
     success: false,
     message: 'Too many review submissions, please try again later.'

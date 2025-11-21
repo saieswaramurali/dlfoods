@@ -41,7 +41,7 @@ export default function ProfilePage() {
     if (user) {
       loadUserOrders();
     }
-  }, [user, loadUserOrders]);
+  }, [user]); // Only depend on user, not loadUserOrders to prevent excessive fetching
 
   if (!user) {
     return (
