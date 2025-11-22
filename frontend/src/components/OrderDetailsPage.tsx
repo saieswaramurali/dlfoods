@@ -63,7 +63,8 @@ export default function OrderDetailsPage() {
       }
 
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/orders/${orderId}`, {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -133,7 +134,7 @@ export default function OrderDetailsPage() {
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Order Not Found</h1>
           <p className="text-gray-600 mb-6">{error || 'The order you are looking for does not exist.'}</p>
           <Link
-            to="/orders"
+            to="/profile"
             className="inline-flex items-center gap-2 px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -286,7 +287,7 @@ export default function OrderDetailsPage() {
               {/* Action Buttons */}
               <div className="mt-6 space-y-3">
                 <Link
-                  to="/orders"
+                  to="/profile"
                   className="w-full bg-amber-600 text-white py-3 rounded-lg hover:bg-amber-700 transition-colors font-medium text-center block"
                 >
                   View All Orders

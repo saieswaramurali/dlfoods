@@ -219,7 +219,8 @@ export default function CheckoutPage() {
       }
 
       // Call API to create order
-      const data = await api.orders.create(orderData);
+      const response = await api.orders.create(orderData);
+      const data = await response.json();
 
       if (!data.success) {
         throw new Error(data.message || 'Failed to place order');

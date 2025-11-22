@@ -107,7 +107,7 @@ export default function ContactSupportPage() {
                 </a>
 
                 <a
-                  href="https://wa.me/919876543210"
+                  href="https://wa.me/919500337355"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center space-x-3 p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
