@@ -362,10 +362,16 @@ ${message}
         `.trim()
       };
 
-      const info = await this.transporter.sendMail(mailOptions);
+      // Add timeout to email sending (60 seconds max)
+      const emailPromise = this.transporter.sendMail(mailOptions);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Contact email send timeout after 60 seconds')), 60000)
+      );
+
+      const info = await Promise.race([emailPromise, timeoutPromise]);
       console.log('📧 Contact email sent successfully:', info.messageId);
 
-      // Send auto-reply to customer
+      // Send auto-reply to customer (also with timeout)
       await this.sendContactAutoReply({ name, email, subject });
       
     } catch (error) {
@@ -394,7 +400,13 @@ DL Foods Support Team
         `.trim()
       };
 
-      await this.transporter.sendMail(mailOptions);
+      // Add timeout to auto-reply email (60 seconds max)
+      const emailPromise = this.transporter.sendMail(mailOptions);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Contact auto-reply timeout after 60 seconds')), 60000)
+      );
+
+      await Promise.race([emailPromise, timeoutPromise]);
       console.log('📧 Contact auto-reply sent successfully');
     } catch (error) {
       console.error('❌ Failed to send contact auto-reply:', error);

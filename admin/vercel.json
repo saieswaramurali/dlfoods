@@ -1,0 +1,39 @@
+{
+  "version": 2,
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
+  "devCommand": "npm run dev",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "env": {
+    "VITE_API_BASE_URL": "@vite_api_base_url",
+    "VITE_ADMIN_USERNAME": "@vite_admin_username", 
+    "VITE_ADMIN_PASSWORD": "@vite_admin_password",
+    "VITE_ADMIN_SECRET_KEY": "@vite_admin_secret_key"
+  },
+  "build": {
+    "env": {
+      "VITE_API_BASE_URL": "@vite_api_base_url",
+      "VITE_ADMIN_USERNAME": "@vite_admin_username",
+      "VITE_ADMIN_PASSWORD": "@vite_admin_password", 
+      "VITE_ADMIN_SECRET_KEY": "@vite_admin_secret_key"
+    }
+  }
+}

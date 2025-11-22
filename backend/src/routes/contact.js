@@ -59,13 +59,19 @@ router.post('/', [
 
     const savedContact = await contactMessage.save();
 
-    // Send contact email using email service
-    await emailService.sendContactEmail({
-      name,
-      email,
-      subject: subject || 'Contact Form Inquiry',
-      message,
-      contactId: savedContact._id
+    // Send contact email using email service (non-blocking)
+    setImmediate(async () => {
+      try {
+        await emailService.sendContactEmail({
+          name,
+          email,
+          subject: subject || 'Contact Form Inquiry',
+          message,
+          contactId: savedContact._id
+        });
+      } catch (emailError) {
+        console.log('Failed to send contact email:', emailError.message);
+      }
     });
 
     res.json({

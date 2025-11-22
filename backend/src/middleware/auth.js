@@ -97,9 +97,66 @@ const requireAdmin = (req, res, next) => {
   next();
 };
 
+// Admin Secret Key Authentication Middleware
+const authenticateAdminSecret = (req, res, next) => {
+  try {
+    const adminSecret = req.headers['x-admin-secret'];
+    
+    // Debug logging
+    console.log('Admin auth debug:');
+    console.log('- Received secret:', adminSecret ? `${adminSecret.substring(0, 20)}...` : 'none');
+    console.log('- Received length:', adminSecret?.length);
+    console.log('- Expected secret:', process.env.ADMIN_SECRET_KEY ? `${process.env.ADMIN_SECRET_KEY.substring(0, 20)}...` : 'none');
+    console.log('- Expected length:', process.env.ADMIN_SECRET_KEY?.length);
+    console.log('- Secrets match:', adminSecret === process.env.ADMIN_SECRET_KEY);
+    
+    // Character-by-character comparison for debugging
+    if (adminSecret && process.env.ADMIN_SECRET_KEY && adminSecret !== process.env.ADMIN_SECRET_KEY) {
+      console.log('- Character comparison:');
+      const minLength = Math.min(adminSecret.length, process.env.ADMIN_SECRET_KEY.length);
+      for (let i = 0; i < minLength; i++) {
+        if (adminSecret[i] !== process.env.ADMIN_SECRET_KEY[i]) {
+          console.log(`  Diff at position ${i}: received '${adminSecret[i]}' (${adminSecret.charCodeAt(i)}) vs expected '${process.env.ADMIN_SECRET_KEY[i]}' (${process.env.ADMIN_SECRET_KEY.charCodeAt(i)})`);
+          break;
+        }
+      }
+    }
+    
+    if (!adminSecret) {
+      return res.status(401).json({
+        success: false,
+        message: 'Admin secret key required'
+      });
+    }
+
+    if (adminSecret !== process.env.ADMIN_SECRET_KEY) {
+      return res.status(403).json({
+        success: false,
+        message: 'Invalid admin secret key'
+      });
+    }
+
+    // Add admin info to request object
+    req.admin = {
+      id: 'admin',
+      role: 'admin',
+      authenticated: true
+    };
+
+    next();
+  } catch (error) {
+    console.error('Admin auth middleware error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error during admin authentication'
+    });
+  }
+};
+
 export {
   generateToken,
   authenticateToken,
   optionalAuth,
-  requireAdmin
+  requireAdmin,
+  authenticateAdminSecret
 };

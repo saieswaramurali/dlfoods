@@ -24,6 +24,7 @@ import productRoutes from './routes/products.js';
 import orderRoutes from './routes/orders.js';
 import cartRoutes from './routes/cart.js';
 import contactRoutes from './routes/contact.js';
+import adminRoutes from './routes/admin.js';
 
 const app = express();
 
@@ -75,7 +76,7 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Admin-Secret'],
   optionsSuccessStatus: 200 // Some legacy browsers choke on 204
 }));
 
@@ -127,6 +128,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
