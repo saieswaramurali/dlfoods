@@ -35,12 +35,14 @@ router.post('/', orderLimiter, async (req, res) => {
       couponCode
     });
 
-    // Send order confirmation email
-    try {
-      await emailService.sendOrderConfirmationEmail(req.user, order);
-    } catch (emailError) {
-      console.log('Failed to send order confirmation email:', emailError.message);
-    }
+    // Send order confirmation email asynchronously (non-blocking)
+    setImmediate(async () => {
+      try {
+        await emailService.sendOrderConfirmationEmail(req.user, order);
+      } catch (emailError) {
+        console.log('Failed to send order confirmation email:', emailError.message);
+      }
+    });
 
     res.status(201).json({
       success: true,

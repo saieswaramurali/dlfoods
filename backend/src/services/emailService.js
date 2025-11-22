@@ -233,7 +233,13 @@ class EmailService {
         html: this.getOrderConfirmationTemplate(user, order)
       };
 
-      const info = await this.transporter.sendMail(mailOptions);
+      // Add timeout to email sending (15 seconds max)
+      const emailPromise = this.transporter.sendMail(mailOptions);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Email send timeout after 15 seconds')), 15000)
+      );
+
+      const info = await Promise.race([emailPromise, timeoutPromise]);
       console.log('✅ Order confirmation email sent:', info.messageId);
       return { success: true, messageId: info.messageId };
     } catch (error) {

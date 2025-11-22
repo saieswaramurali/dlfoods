@@ -47,7 +47,10 @@ class OrderService {
     const session = await mongoose.startSession();
     
     try {
-      await session.startTransaction();
+      await session.startTransaction({
+        readTimeout: 30000,  // 30 seconds timeout
+        writeTimeout: 30000  // 30 seconds timeout
+      });
 
       // 1. Validate user exists
       const user = await User.findById(userId).session(session);
