@@ -2,13 +2,14 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import AuthService from '../utils/auth';
 
 export default function AuthSuccessPage() {
   const navigate = useNavigate();
-  const { setUser } = useAuth();
+  const { refreshUser } = useAuth();
 
   useEffect(() => {
-    const processAuth = () => {
+    const processAuth = async () => {
       try {
         // Extract token and user data from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -16,19 +17,17 @@ export default function AuthSuccessPage() {
         const userDataString = urlParams.get('user');
 
         if (token && userDataString) {
-          // Store token in localStorage
-          localStorage.setItem('token', token);
-          
-          // Parse and store user data
+          // Parse user data
           const userData = JSON.parse(decodeURIComponent(userDataString));
           
-          // Update auth context
-          if (setUser) {
-            setUser(userData);
-          }
+          // Store auth data using AuthService
+          AuthService.setAuthData(token, userData);
 
           console.log('Auth Success - Token stored:', !!token);
           console.log('Auth Success - User data:', userData);
+
+          // Refresh user context
+          await refreshUser();
 
           // Redirect to home page
           setTimeout(() => {
@@ -49,7 +48,7 @@ export default function AuthSuccessPage() {
     };
 
     processAuth();
-  }, [navigate, setUser]);
+  }, [navigate, refreshUser]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

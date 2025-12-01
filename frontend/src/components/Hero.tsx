@@ -25,10 +25,15 @@ export default function Hero() {
           </div>
 
           <div className="relative">
-            <div className="w-full h-96 bg-gradient-to-br from-amber-100 to-orange-100 rounded-3xl shadow-2xl flex items-center justify-center">
+            {/* Desktop: 16:9 aspect ratio, Mobile: 4:3 aspect ratio */}
+            <div className="w-full aspect-[4/3] md:aspect-[16/9] bg-gradient-to-br from-amber-100 to-orange-100 rounded-3xl shadow-2xl flex items-center justify-center">
               <div className="text-center space-y-2">
                 <div className="text-6xl">🥗</div>
                 <p className="text-gray-500 text-sm">Hero Image Placeholder</p>
+                <div className="text-xs text-gray-400 mt-2">
+                  <div className="md:hidden">Mobile: 4:3 ratio</div>
+                  <div className="hidden md:block">Desktop: 16:9 ratio</div>
+                </div>
               </div>
             </div>
           </div>
