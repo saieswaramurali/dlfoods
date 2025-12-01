@@ -90,8 +90,8 @@ app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Serve static files from frontend assets
-app.use('/assets', express.static('/home/sai/Desktop/web/dlfoods/frontend/src/assets'));
+// Serve static files from backend's assets folder
+app.use('/assets', express.static('./assets'));
 
 // Session configuration for Passport
 app.use(session({
