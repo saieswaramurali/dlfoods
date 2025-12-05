@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ArrowLeft, Package, Truck, MapPin, CreditCard, Clock, Check, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Package, Truck, MapPin, CreditCard, Check, AlertCircle } from 'lucide-react';
 import { getProductImageWithFallback } from '../utils/productImages';
 
 interface OrderDetails {
@@ -85,22 +85,26 @@ export default function OrderDetailsPage() {
     }
   };
 
+  // Map backend status to display status (pending shows as confirmed to user)
+  const getDisplayStatus = (status: string) => {
+    return (status === 'pending' || status === 'confirmed') ? 'confirmed' : status;
+  };
+
   const getStatusColor = (status: string) => {
+    const displayStatus = getDisplayStatus(status);
     const statusColors = {
-      'pending': 'bg-yellow-100 text-yellow-800',
       'confirmed': 'bg-blue-100 text-blue-800',
       'preparing': 'bg-purple-100 text-purple-800',
       'shipped': 'bg-indigo-100 text-indigo-800',
       'delivered': 'bg-green-100 text-green-800',
       'cancelled': 'bg-red-100 text-red-800'
     };
-    return statusColors[status as keyof typeof statusColors] || 'bg-gray-100 text-gray-800';
+    return statusColors[displayStatus as keyof typeof statusColors] || 'bg-gray-100 text-gray-800';
   };
 
   const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return <Clock className="w-4 h-4" />;
+    const displayStatus = getDisplayStatus(status);
+    switch (displayStatus) {
       case 'confirmed':
       case 'preparing':
         return <Package className="w-4 h-4" />;
@@ -171,7 +175,7 @@ export default function OrderDetailsPage() {
                 <h2 className="text-lg font-semibold">Order Status</h2>
                 <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
                   {getStatusIcon(order.status)}
-                  {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                  {getDisplayStatus(order.status).charAt(0).toUpperCase() + getDisplayStatus(order.status).slice(1)}
                 </span>
               </div>
               <p className="text-gray-600 mb-4">

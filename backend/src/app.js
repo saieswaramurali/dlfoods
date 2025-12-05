@@ -25,6 +25,7 @@ import orderRoutes from './routes/orders.js';
 import cartRoutes from './routes/cart.js';
 import contactRoutes from './routes/contact.js';
 import adminRoutes from './routes/admin.js';
+import paymentRoutes from './routes/payments.js';
 
 const app = express();
 
@@ -91,7 +92,11 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve static files from backend's assets folder
-app.use('/assets', express.static('./assets'));
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 // Session configuration for Passport
 app.use(session({
@@ -129,6 +134,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

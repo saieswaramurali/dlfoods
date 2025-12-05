@@ -158,10 +158,10 @@ export default function ContactSupportPage() {
               </div>
               
               <div className="text-gray-600 space-y-1">
-                <p className="font-medium text-gray-900">DL Foods Pvt. Ltd.</p>
-                <p>123 Business Park, Floor 5</p>
-                <p>Andheri East, Mumbai</p>
-                <p>Maharashtra 400069</p>
+                <p className="font-medium text-gray-900">DL Foods</p>
+                <p>18/13 Shaik Masitry Street</p>
+                <p>Kuppu Lane, Royapuram</p>
+                <p>Chennai - 600013</p>
                 <p>India</p>
               </div>
             </div>

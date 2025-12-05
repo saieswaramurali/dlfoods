@@ -1,11 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, CreditCard, Truck, MapPin, Mail, User, Lock, Check, AlertCircle } from 'lucide-react';
+import { ArrowLeft, CreditCard, MapPin, Mail, User, Check, AlertCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useToastContext } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { getProductImageWithFallback } from '../utils/productImages';
 import { api } from '../utils/api';
+
+// Declare Razorpay type for TypeScript
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 interface AddressForm {
   fullName: string;
@@ -16,15 +23,6 @@ interface AddressForm {
   state: string;
   pincode: string;
   landmark: string;
-}
-
-interface PaymentForm {
-  method: 'razorpay' | 'card' | 'upi';
-  cardNumber: string;
-  cardName: string;
-  expiryDate: string;
-  cvv: string;
-  upiId: string;
 }
 
 interface ValidationErrors {
@@ -64,14 +62,6 @@ export default function CheckoutPage() {
     pincode: '',
     landmark: ''
   });
-  const [paymentForm, setPaymentForm] = useState<PaymentForm>({
-    method: 'razorpay',
-    cardNumber: '',
-    cardName: '',
-    expiryDate: '',
-    cvv: '',
-    upiId: ''
-  });
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
@@ -87,16 +77,6 @@ export default function CheckoutPage() {
   const validatePincode = (pincode: string): boolean => {
     const pincodeRegex = /^[1-9][0-9]{5}$/; // Indian pincode format
     return pincodeRegex.test(pincode);
-  };
-
-  const validateCardNumber = (cardNumber: string): boolean => {
-    const cleanNumber = cardNumber.replace(/\s+/g, '');
-    return /^\d{16}$/.test(cleanNumber);
-  };
-
-  const validateUPI = (upiId: string): boolean => {
-    const upiRegex = /^[a-zA-Z0-9.-]+@[a-zA-Z0-9.-]+$/;
-    return upiRegex.test(upiId);
   };
 
   const validateAddressForm = (): ValidationErrors => {
@@ -139,11 +119,6 @@ export default function CheckoutPage() {
     return newErrors;
   };
 
-  const validatePaymentForm = (): ValidationErrors => {
-    // No validation needed for Razorpay - it will handle payment validation
-    return {};
-  };
-
   const subtotal = cart.subtotal || 0;
 
   const shipping = subtotal >= 500 ? 0 : 50;
@@ -155,17 +130,7 @@ export default function CheckoutPage() {
     setErrors(validationErrors);
     
     if (Object.keys(validationErrors).length === 0) {
-      setCurrentStep(2);
-    }
-  };
-
-  const handlePaymentSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const validationErrors = validatePaymentForm();
-    setErrors(validationErrors);
-    
-    if (Object.keys(validationErrors).length === 0) {
-      setCurrentStep(3);
+      setCurrentStep(2); // Go directly to Review & Pay
     }
   };
 
@@ -183,20 +148,33 @@ export default function CheckoutPage() {
       return;
     }
 
+    // Check if Razorpay is loaded
+    if (!window.Razorpay) {
+      showError('Payment gateway not loaded. Please refresh the page and try again.');
+      return;
+    }
+
     setIsProcessing(true);
 
     try {
       // Validate forms
       const addressErrors = validateAddressForm();
-      const paymentErrors = validatePaymentForm();
       
-      if (Object.keys(addressErrors).length > 0 || Object.keys(paymentErrors).length > 0) {
-        setErrors({ ...addressErrors, ...paymentErrors });
+      if (Object.keys(addressErrors).length > 0) {
+        setErrors(addressErrors);
         setIsProcessing(false);
         return;
       }
 
-      // Prepare order data
+      // Step 1: Get Razorpay key
+      const keyResponse = await api.payments.getKey();
+      const keyData = await keyResponse.json();
+      
+      if (!keyData.success) {
+        throw new Error('Failed to initialize payment gateway');
+      }
+
+      // Step 2: Create order on backend
       const orderData = {
         shippingAddress: {
           fullName: addressForm.fullName,
@@ -206,46 +184,109 @@ export default function CheckoutPage() {
           pincode: addressForm.pincode,
           phone: addressForm.phone
         },
-        paymentMethod: 'razorpay',
         notes: notes
       };
 
-      // Get token
-      const token = localStorage.getItem('token');
-      if (!token) {
-        showError('Please log in to place an order.');
-        navigate('/');
-        return;
+      const createOrderResponse = await api.payments.createOrder(orderData);
+      const createOrderData = await createOrderResponse.json();
+
+      if (!createOrderData.success) {
+        throw new Error(createOrderData.message || 'Failed to create order');
       }
 
-      // Call API to create order
-      const response = await api.orders.create(orderData);
-      const data = await response.json();
+      const { razorpayOrderId, amount, currency, orderId } = createOrderData.data;
 
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to place order');
-      }
+      // Step 3: Open Razorpay payment modal
+      const razorpayOptions = {
+        key: keyData.data.key,
+        amount: amount,
+        currency: currency,
+        name: 'DL FOODS',
+        description: `Order #${orderId}`,
+        order_id: razorpayOrderId,
+        handler: async function (response: {
+          razorpay_order_id: string;
+          razorpay_payment_id: string;
+          razorpay_signature: string;
+        }) {
+          try {
+            // Step 4: Verify payment on backend
+            const verifyResponse = await api.payments.verify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              orderId: orderId
+            });
+            
+            const verifyData = await verifyResponse.json();
 
-      // Order placed successfully
-      const order = data.data.order;
+            if (verifyData.success) {
+              // Payment successful - clear cart and redirect
+              await clearCart();
+              showSuccess(`🎉 Payment successful! Order ID: ${orderId}`, 5000);
+              navigate(`/orders/${orderId}`);
+            } else {
+              showError(verifyData.message || 'Payment verification failed');
+            }
+          } catch (error) {
+            console.error('Payment verification error:', error);
+            showError('Payment verification failed. Please contact support if amount was deducted.');
+          }
+        },
+        prefill: {
+          name: addressForm.fullName,
+          email: addressForm.email,
+          contact: addressForm.phone
+        },
+        notes: {
+          orderId: orderId,
+          address: `${addressForm.address}, ${addressForm.city}, ${addressForm.state} - ${addressForm.pincode}`
+        },
+        theme: {
+          color: '#d97706' // Amber-600 color
+        },
+        modal: {
+          ondismiss: async function() {
+            // User closed modal without completing payment
+            showError('Payment was cancelled. Your order is saved and can be completed later.');
+            setIsProcessing(false);
+          }
+        }
+      };
+
+      const razorpay = new window.Razorpay(razorpayOptions);
       
-      // Clear cart first
-      await clearCart();
-      
-      // Show success and redirect immediately
-      showSuccess(`🎉 Order placed successfully! Order ID: ${order.orderId}`, 5000);
-      
-      // Redirect to order confirmation
-      navigate(`/orders/${order.orderId}`);
+      // Handle payment failure
+      razorpay.on('payment.failed', async function (response: any) {
+        console.error('Payment failed:', response.error);
+        
+        // Record failed payment on backend
+        try {
+          await api.payments.failed({
+            orderId: orderId,
+            razorpayOrderId: razorpayOrderId,
+            error: {
+              code: response.error.code,
+              description: response.error.description,
+              reason: response.error.reason
+            }
+          });
+        } catch (err) {
+          console.error('Failed to record payment failure:', err);
+        }
+        
+        showError(`Payment failed: ${response.error.description}`);
+        setIsProcessing(false);
+      });
+
+      razorpay.open();
 
     } catch (error) {
       console.error('Order placement error:', error);
       if (error instanceof Error && error.message.includes('Authentication')) {
-        // Already handled above
         return;
       }
       showError(error instanceof Error ? error.message : 'Failed to place order. Please try again.');
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -286,35 +327,28 @@ export default function CheckoutPage() {
           <h1 className="text-3xl font-bold text-gray-900">Checkout</h1>
         </div>
 
-        {/* Progress Steps */}
+        {/* Progress Steps - Simplified to 2 steps */}
         <div className="flex items-center justify-center mb-8">
           <div className="flex items-center space-x-4">
             <div className={`flex items-center space-x-2 ${currentStep >= 1 ? 'text-amber-600' : 'text-gray-400'}`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 1 ? 'bg-amber-600 text-white' : 'bg-gray-200'}`}>
                 {currentStep > 1 ? <Check className="w-4 h-4" /> : '1'}
               </div>
-              <span className="font-medium">Address</span>
+              <span className="font-medium">Delivery Address</span>
             </div>
-            <div className="w-12 h-px bg-gray-300"></div>
+            <div className="w-16 h-px bg-gray-300"></div>
             <div className={`flex items-center space-x-2 ${currentStep >= 2 ? 'text-amber-600' : 'text-gray-400'}`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 2 ? 'bg-amber-600 text-white' : 'bg-gray-200'}`}>
                 {currentStep > 2 ? <Check className="w-4 h-4" /> : '2'}
               </div>
-              <span className="font-medium">Payment</span>
-            </div>
-            <div className="w-12 h-px bg-gray-300"></div>
-            <div className={`flex items-center space-x-2 ${currentStep >= 3 ? 'text-amber-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 3 ? 'bg-amber-600 text-white' : 'bg-gray-200'}`}>
-                {currentStep > 3 ? <Check className="w-4 h-4" /> : '3'}
-              </div>
-              <span className="font-medium">Confirm</span>
+              <span className="font-medium">Review & Pay</span>
             </div>
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className={`grid gap-8 ${currentStep === 1 ? 'lg:grid-cols-3' : 'max-w-3xl mx-auto'}`}>
           {/* Main Content */}
-          <div className="lg:col-span-2">
+          <div className={currentStep === 1 ? 'lg:col-span-2' : ''}>
             {currentStep === 1 && (
               <div className="bg-white rounded-2xl shadow-sm p-6">
                 <div className="flex items-center mb-6">
@@ -499,154 +533,174 @@ export default function CheckoutPage() {
                     type="submit"
                     className="w-full bg-amber-600 text-white py-3 rounded-lg hover:bg-amber-700 transition-colors font-medium"
                   >
-                    Continue to Payment
+                    Continue to Review & Pay
                   </button>
                 </form>
               </div>
             )}
 
             {currentStep === 2 && (
-              <div className="bg-white rounded-2xl shadow-sm p-6">
-                <div className="flex items-center mb-6">
-                  <CreditCard className="w-6 h-6 text-amber-600 mr-2" />
-                  <h2 className="text-xl font-semibold">Payment Method</h2>
-                </div>
+              <div className="bg-white rounded-2xl shadow-sm p-5">
+                <h2 className="text-lg font-semibold mb-4">Review & Pay</h2>
+                
+                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                  {/* Delivery Address Summary */}
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="font-medium text-sm flex items-center">
+                        <MapPin className="w-3.5 h-3.5 mr-1.5 text-amber-600" />
+                        Delivery Address
+                      </h3>
+                      <button 
+                        onClick={() => setCurrentStep(1)}
+                        className="text-amber-600 text-xs hover:underline"
+                      >
+                        Edit
+                      </button>
+                    </div>
+                    <p className="text-gray-700 text-xs leading-relaxed">
+                      <span className="font-medium">{addressForm.fullName}</span><br />
+                      {addressForm.address}, {addressForm.city}<br />
+                      {addressForm.state} - {addressForm.pincode}<br />
+                      Ph: {addressForm.phone}
+                    </p>
+                  </div>
 
-                <form onSubmit={handlePaymentSubmit} className="space-y-6">
-                  {/* Payment Method Info */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div className="flex items-center">
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="razorpay"
-                        checked={true}
-                        readOnly
-                        className="mr-3"
-                      />
-                      <CreditCard className="w-5 h-5 mr-2 text-blue-600" />
-                      <div>
-                        <span className="font-medium text-blue-900">Secure Online Payment</span>
-                        <p className="text-sm text-blue-700 mt-1">
-                          Pay securely using Credit/Debit Card, UPI, Net Banking, or Wallet via Razorpay
-                        </p>
+                  {/* Price Breakdown */}
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <h3 className="font-medium text-sm mb-2">Price Details</h3>
+                    <div className="space-y-1 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Subtotal ({cart.totalItems} items)</span>
+                        <span>₹{subtotal}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Shipping</span>
+                        <span className={shipping === 0 ? 'text-green-600' : ''}>
+                          {shipping === 0 ? 'Free' : `₹${shipping}`}
+                        </span>
+                      </div>
+                      <div className="flex justify-between font-semibold text-sm border-t pt-1.5 mt-1.5">
+                        <span>Total</span>
+                        <span className="text-amber-600">₹{total}</span>
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                    <p>✓ Your payment information is encrypted and secure</p>
-                    <p>✓ Multiple payment options available</p>
-                    <p>✓ Instant payment confirmation</p>
-                  </div>
-
-
-
-                  <div className="flex space-x-3">
-                    <button
-                      type="button"
-                      onClick={() => setCurrentStep(1)}
-                      className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition-colors"
-                    >
-                      Back
-                    </button>
-                    <button
-                      type="submit"
-                      className="flex-1 bg-amber-600 text-white py-3 rounded-lg hover:bg-amber-700 transition-colors font-medium"
-                    >
-                      Review Order
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
-
-            {currentStep === 3 && (
-              <div className="bg-white rounded-2xl shadow-sm p-6">
-                <h2 className="text-xl font-semibold mb-6">Order Confirmation</h2>
-                
-                {/* Address Summary */}
-                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-medium mb-2">Delivery Address</h3>
-                  <p className="text-gray-700">
-                    {addressForm.fullName}<br />
-                    {addressForm.address}<br />
-                    {addressForm.city}, {addressForm.state} - {addressForm.pincode}<br />
-                    Phone: {addressForm.phone}
-                  </p>
                 </div>
 
-                {/* Payment Summary */}
-                <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <h3 className="font-medium mb-2 text-blue-900">Payment Method</h3>
-                  <div className="flex items-center text-blue-800">
-                    <CreditCard className="w-4 h-4 mr-2" />
-                    <span>Secure Online Payment via Razorpay</span>
+                {/* Order Items - Compact horizontal scroll */}
+                <div className="mb-4">
+                  <h3 className="font-medium text-sm mb-2">Order Items</h3>
+                  <div className="flex space-x-3 overflow-x-auto pb-2">
+                    {cart.items.map((item) => (
+                      <div key={item._id} className="flex-shrink-0 w-32 p-2 bg-gray-50 rounded-lg text-center">
+                        <img 
+                          src={getProductImageWithFallback(item.productId._id, item.productId.primaryImage)} 
+                          alt={item.productId.name} 
+                          className="w-14 h-14 object-contain bg-white rounded-lg mx-auto mb-1" 
+                        />
+                        <p className="font-medium text-xs truncate">{item.productId.name}</p>
+                        <p className="text-gray-500 text-xs">Qty: {item.quantity} • ₹{item.productId.price * item.quantity}</p>
+                      </div>
+                    ))}
                   </div>
-                  <p className="text-sm text-blue-600 mt-1">
-                    Complete payment after order confirmation
+                </div>
+
+                {/* Payment & Security - Combined row */}
+                <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                  <div className="flex-1 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-center text-blue-900 text-sm">
+                      <CreditCard className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <div>
+                        <span className="font-medium">Razorpay Secure Payment</span>
+                        <p className="text-xs text-blue-700 mt-0.5">Cards, UPI, Net Banking, Wallets</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Terms and Conditions */}
+                <div className="mb-4 text-xs text-gray-600">
+                  <p>
+                    By placing this order, you agree to our{' '}
+                    <Link to="/terms" className="text-amber-600 hover:underline">Terms & Conditions</Link>,{' '}
+                    <Link to="/privacy-policy" className="text-amber-600 hover:underline">Privacy Policy</Link>,{' '}
+                    <Link to="/returns" className="text-amber-600 hover:underline">Return Policy</Link>, and{' '}
+                    <Link to="/shipping" className="text-amber-600 hover:underline">Shipping Policy</Link>.
                   </p>
                 </div>
 
                 <div className="flex space-x-3">
                   <button
-                    onClick={() => setCurrentStep(2)}
-                    className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition-colors"
+                    onClick={() => setCurrentStep(1)}
+                    disabled={isProcessing}
+                    className="flex-1 bg-gray-200 text-gray-700 py-2.5 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 text-sm"
                   >
                     Back
                   </button>
                   <button
                     onClick={handleOrderComplete}
                     disabled={isProcessing}
-                    className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-[2] bg-green-600 text-white py-2.5 rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
-                    {isProcessing ? 'Processing...' : 'Place Order'}
+                    {isProcessing ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        Proceed to Razorpay • ₹{total}
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Order Summary Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-24">
-              <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
-              
-              <div className="space-y-3 mb-4">
-                {cart.items.map((item) => (
-                  <div key={item._id} className="flex items-center space-x-3">
-                    <img 
-                      src={getProductImageWithFallback(item.productId._id, item.productId.primaryImage)} 
-                      alt={item.productId.name} 
-                      className="w-12 h-12 object-contain bg-gray-50 rounded-lg" 
-                    />
-                    <div className="flex-1">
-                      <p className="font-medium text-sm">{item.productId.name}</p>
-                      <p className="text-gray-500 text-xs">Qty: {item.quantity}</p>
+          {/* Order Summary Sidebar - Only show on Step 1 */}
+          {currentStep === 1 && (
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-24">
+                <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
+                
+                <div className="space-y-3 mb-4">
+                  {cart.items.map((item) => (
+                    <div key={item._id} className="flex items-center space-x-3">
+                      <img 
+                        src={getProductImageWithFallback(item.productId._id, item.productId.primaryImage)} 
+                        alt={item.productId.name} 
+                        className="w-12 h-12 object-contain bg-gray-50 rounded-lg" 
+                      />
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{item.productId.name}</p>
+                        <p className="text-gray-500 text-xs">Qty: {item.quantity}</p>
+                      </div>
+                      <p className="font-medium">₹{item.productId.price}</p>
                     </div>
-                    <p className="font-medium">₹{item.productId.price}</p>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
 
-              <div className="border-t pt-4 space-y-2">
-                <div className="flex justify-between">
-                  <span>Subtotal ({cart.totalItems} items)</span>
-                  <span>₹{subtotal}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Shipping</span>
-                  <span className={shipping === 0 ? 'text-green-600' : ''}>
-                    {shipping === 0 ? 'Free' : `₹${shipping}`}
-                  </span>
-                </div>
-                <div className="flex justify-between text-lg font-semibold border-t pt-2">
-                  <span>Total</span>
-                  <span className="text-amber-600">₹{total}</span>
+                <div className="border-t pt-4 space-y-2">
+                  <div className="flex justify-between">
+                    <span>Subtotal ({cart.totalItems} items)</span>
+                    <span>₹{subtotal}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Shipping</span>
+                    <span className={shipping === 0 ? 'text-green-600' : ''}>
+                      {shipping === 0 ? 'Free' : `₹${shipping}`}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-lg font-semibold border-t pt-2">
+                    <span>Total</span>
+                    <span className="text-amber-600">₹{total}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

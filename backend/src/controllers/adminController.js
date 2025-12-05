@@ -124,11 +124,7 @@ export const updateOrderStatus = async (req, res) => {
       });
     }
 
-    const order = await Order.findByIdAndUpdate(
-      orderId,
-      { status, updatedAt: Date.now() },
-      { new: true }
-    ).populate('userId', 'name email');
+    const order = await Order.findById(orderId).populate('userId', 'name email');
 
     if (!order) {
       return res.status(404).json({
@@ -136,6 +132,28 @@ export const updateOrderStatus = async (req, res) => {
         message: 'Order not found'
       });
     }
+
+    // Update order status
+    order.status = status;
+    
+    // Add tracking update based on status
+    const statusMessages = {
+      'pending': 'Order is awaiting confirmation',
+      'confirmed': 'Order confirmed by admin and processing has started',
+      'preparing': 'Order is being prepared for shipment',
+      'shipped': 'Order has been shipped and is on the way',
+      'delivered': 'Order has been delivered successfully',
+      'cancelled': 'Order has been cancelled',
+      'refunded': 'Order has been refunded'
+    };
+
+    order.tracking.updates.push({
+      status,
+      message: statusMessages[status] || `Order status updated to ${status}`,
+      timestamp: new Date()
+    });
+
+    await order.save();
 
     res.json({
       success: true,

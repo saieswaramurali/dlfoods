@@ -88,7 +88,7 @@ export default function Contact() {
               </div>
               <div>
                 <h4 className="text-lg font-semibold text-gray-900 mb-1">Email</h4>
-                <p className="text-gray-600">support@dlfoods.com</p>
+                <p className="text-gray-600">contact@dlfoods.in</p>
                 <p className="text-sm text-gray-500">We respond within 24 hours</p>
               </div>
             </div>
@@ -99,7 +99,7 @@ export default function Contact() {
               </div>
               <div>
                 <h4 className="text-lg font-semibold text-gray-900 mb-1">Phone</h4>
-                <p className="text-gray-600">+91 98765 43210</p>
+                <p className="text-gray-600">+91 99403 80475</p>
                 <p className="text-sm text-gray-500">Mon-Sat, 9:00 AM - 7:00 PM</p>
               </div>
             </div>
@@ -111,9 +111,9 @@ export default function Contact() {
               <div>
                 <h4 className="text-lg font-semibold text-gray-900 mb-1">Location</h4>
                 <div className="text-gray-600 space-y-1">
-                  <p>United Kingdom</p>
-                  <p>London, England</p>
-                  <p>Shipping Worldwide</p>
+                  <p>18/13 Shaik Masitry Street</p>
+                  <p>Kuppu Lane, Royapuram</p>
+                  <p>Chennai - 600013</p>
                 </div>
               </div>
             </div>

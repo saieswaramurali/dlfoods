@@ -40,6 +40,13 @@ const API_CONFIG = {
       UPDATE_ITEM: (productId: string) => `/api/cart/items/${productId}`,
       REMOVE_ITEM: (productId: string) => `/api/cart/items/${productId}`,
       CLEAR: '/api/cart'
+    },
+    // Payments
+    PAYMENTS: {
+      GET_KEY: '/api/payments/key',
+      CREATE_ORDER: '/api/payments/create-order',
+      VERIFY: '/api/payments/verify',
+      FAILED: '/api/payments/failed'
     }
   }
 };
@@ -194,6 +201,52 @@ export const api = {
     
     clear: () => 
       apiRequest(API_CONFIG.ENDPOINTS.CART.CLEAR, { method: 'DELETE' })
+  },
+
+  // Payments
+  payments: {
+    getKey: () => apiRequest(API_CONFIG.ENDPOINTS.PAYMENTS.GET_KEY),
+    
+    createOrder: (orderData: {
+      shippingAddress: {
+        fullName: string;
+        address: string;
+        city: string;
+        state: string;
+        pincode: string;
+        phone: string;
+      };
+      notes?: string;
+    }) => 
+      apiRequest(API_CONFIG.ENDPOINTS.PAYMENTS.CREATE_ORDER, {
+        method: 'POST',
+        body: JSON.stringify(orderData)
+      }),
+    
+    verify: (paymentData: {
+      razorpay_order_id: string;
+      razorpay_payment_id: string;
+      razorpay_signature: string;
+      orderId: string;
+    }) => 
+      apiRequest(API_CONFIG.ENDPOINTS.PAYMENTS.VERIFY, {
+        method: 'POST',
+        body: JSON.stringify(paymentData)
+      }),
+    
+    failed: (failureData: {
+      orderId: string;
+      razorpayOrderId: string;
+      error: {
+        code?: string;
+        description?: string;
+        reason?: string;
+      };
+    }) => 
+      apiRequest(API_CONFIG.ENDPOINTS.PAYMENTS.FAILED, {
+        method: 'POST',
+        body: JSON.stringify(failureData)
+      })
   }
 };
 

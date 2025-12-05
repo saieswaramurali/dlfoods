@@ -1,209 +1,129 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Truck, Clock, MapPin, Package, Shield, Phone } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 export default function ShippingPage() {
-  // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <Link 
-              to="/"
-              className="flex items-center space-x-2 text-gray-600 hover:text-amber-600 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span>Back to Home</span>
-            </Link>
-          </div>
-          
-          <div className="text-center">
-            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Truck className="w-8 h-8 text-amber-600" />
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Shipping Information</h1>
-            <p className="text-gray-600">Everything you need to know about our delivery services</p>
-          </div>
+    <div className="min-h-screen bg-white pt-20">
+      <div className="max-w-3xl mx-auto px-4 py-8">
+        <div className="mb-8">
+          <Link 
+            to="/"
+            className="inline-flex items-center text-gray-600 hover:text-gray-900 text-sm mb-6"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Link>
+          <h1 className="text-2xl font-semibold text-gray-900 mb-2">Shipping Policy</h1>
+          <p className="text-sm text-gray-500">Last updated: December 6, 2025</p>
         </div>
 
-        {/* Shipping Options */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">Delivery Options</h2>
-          
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="border border-gray-200 rounded-lg p-6 text-center">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Truck className="w-6 h-6 text-green-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Standard Delivery</h3>
-              <p className="text-gray-600 mb-3">2-4 business days</p>
-              <p className="text-sm text-gray-500">Free on orders above ₹500</p>
-              <p className="text-sm text-gray-500">₹50 for orders below ₹500</p>
-            </div>
+        <div className="text-sm leading-relaxed text-gray-700 space-y-6">
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">1. Shipping Coverage</h2>
+            <p>
+              We currently ship to all serviceable pin codes across India. Delivery is available in all major cities, towns, and most rural areas. Enter your pin code during checkout to verify delivery availability in your area.
+            </p>
+          </section>
 
-            <div className="border border-gray-200 rounded-lg p-6 text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Clock className="w-6 h-6 text-blue-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Express Delivery</h3>
-              <p className="text-gray-600 mb-3">1-2 business days</p>
-              <p className="text-sm text-gray-500">₹100 additional charge</p>
-              <p className="text-sm text-gray-500">Available in major cities</p>
-            </div>
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">2. Shipping Charges</h2>
+            <table className="w-full border-collapse border border-gray-200 text-sm my-3">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="border border-gray-200 px-4 py-2 text-left font-medium">Order Value</th>
+                  <th className="border border-gray-200 px-4 py-2 text-left font-medium">Shipping Charge</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border border-gray-200 px-4 py-2">Above ₹500</td>
+                  <td className="border border-gray-200 px-4 py-2">Free</td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-200 px-4 py-2">Below ₹500</td>
+                  <td className="border border-gray-200 px-4 py-2">₹50</td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
 
-            <div className="border border-gray-200 rounded-lg p-6 text-center">
-              <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Package className="w-6 h-6 text-amber-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Same Day Delivery</h3>
-              <p className="text-gray-600 mb-3">Within 6 hours</p>
-              <p className="text-sm text-gray-500">₹200 additional charge</p>
-              <p className="text-sm text-gray-500">Available in select areas</p>
-            </div>
-          </div>
-        </div>
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">3. Delivery Time</h2>
+            <p className="mb-3">Estimated delivery times after order confirmation:</p>
+            <table className="w-full border-collapse border border-gray-200 text-sm my-3">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="border border-gray-200 px-4 py-2 text-left font-medium">Location</th>
+                  <th className="border border-gray-200 px-4 py-2 text-left font-medium">Delivery Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border border-gray-200 px-4 py-2">Metro Cities</td>
+                  <td className="border border-gray-200 px-4 py-2">2-4 business days</td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-200 px-4 py-2">Other Cities</td>
+                  <td className="border border-gray-200 px-4 py-2">4-6 business days</td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-200 px-4 py-2">Remote Areas</td>
+                  <td className="border border-gray-200 px-4 py-2">7-10 business days</td>
+                </tr>
+              </tbody>
+            </table>
+            <p className="text-gray-500">
+              Note: Delivery times are estimates and may vary due to unforeseen circumstances, holidays, or weather conditions.
+            </p>
+          </section>
 
-        {/* Delivery Areas */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center space-x-3 mb-4">
-            <MapPin className="w-6 h-6 text-amber-600" />
-            <h2 className="text-2xl font-semibold text-gray-900">Delivery Coverage</h2>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Standard & Express Delivery</h3>
-              <ul className="space-y-2 text-gray-600">
-                <li>• All major cities across India</li>
-                <li>• Tier 1 & Tier 2 cities</li>
-                <li>• Over 15,000+ pin codes covered</li>
-                <li>• Remote areas (additional 1-2 days)</li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Same Day Delivery</h3>
-              <ul className="space-y-2 text-gray-600">
-                <li>• Mumbai, Delhi, Bangalore</li>
-                <li>• Chennai, Hyderabad, Pune</li>
-                <li>• Kolkata, Ahmedabad, Jaipur</li>
-                <li>• Selected areas within these cities</li>
-              </ul>
-            </div>
-          </div>
-        </div>
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">4. Order Processing</h2>
+            <p className="mb-3">
+              Orders are processed within 1-2 business days after payment confirmation. Orders placed on weekends or public holidays will be processed on the next business day.
+            </p>
+            <p>You will receive an email with tracking information once your order is shipped.</p>
+          </section>
 
-        {/* Shipping Process */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">How Shipping Works</h2>
-          
-          <div className="space-y-6">
-            <div className="flex items-start space-x-4">
-              <div className="w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">1</div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Order Processing</h3>
-                <p className="text-gray-600">We process your order within 2-4 hours of confirmation. You'll receive an order confirmation email immediately.</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start space-x-4">
-              <div className="w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">2</div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Packaging</h3>
-                <p className="text-gray-600">Your items are carefully packed with eco-friendly materials to ensure freshness and prevent damage during transit.</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start space-x-4">
-              <div className="w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">3</div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Dispatch</h3>
-                <p className="text-gray-600">Once dispatched, you'll receive tracking information via SMS and email to monitor your order's progress.</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start space-x-4">
-              <div className="w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">4</div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Delivery</h3>
-                <p className="text-gray-600">Our delivery partner will contact you before delivery. Please ensure someone is available to receive the order.</p>
-              </div>
-            </div>
-          </div>
-        </div>
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">5. Order Tracking</h2>
+            <p>
+              Once your order is dispatched, you will receive a tracking number via email and SMS. You can track your order status through your account on our website or by contacting our customer support.
+            </p>
+          </section>
 
-        {/* Special Instructions */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center space-x-3 mb-4">
-            <Shield className="w-6 h-6 text-amber-600" />
-            <h2 className="text-2xl font-semibold text-gray-900">Special Handling</h2>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Fresh Products</h3>
-              <ul className="space-y-2 text-gray-600">
-                <li>• Temperature-controlled packaging</li>
-                <li>• Dry ice for frozen items</li>
-                <li>• Delivered within expiry dates</li>
-                <li>• Quality guarantee on arrival</li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Supplements</h3>
-              <ul className="space-y-2 text-gray-600">
-                <li>• Moisture-proof packaging</li>
-                <li>• Protected from direct sunlight</li>
-                <li>• Batch numbers tracked</li>
-                <li>• Minimum 75% shelf life</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        {/* Order Tracking */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Track Your Order</h2>
-          <div className="bg-gray-50 rounded-lg p-4">
-            <p className="text-gray-600 mb-3">You can track your order using:</p>
-            <ul className="space-y-2 text-gray-600">
-              <li>• Order tracking link in SMS/Email</li>
-              <li>• "My Orders" section in your account</li>
-              <li>• Customer support: 1800-123-4567</li>
-              <li>• WhatsApp: +91-98765-43210</li>
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">6. Delivery Attempts</h2>
+            <p className="mb-3">
+              Our delivery partner will make up to 3 delivery attempts. If delivery is unsuccessful after 3 attempts, the order will be returned to us. In such cases:
+            </p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>A refund will be initiated after deducting shipping charges</li>
+              <li>You may contact us to arrange redelivery (additional charges may apply)</li>
             </ul>
-          </div>
-        </div>
+          </section>
 
-        {/* Contact for Shipping Issues */}
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
-          <div className="flex items-center space-x-3 mb-4">
-            <Phone className="w-6 h-6 text-amber-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Shipping Issues?</h3>
-          </div>
-          <p className="text-gray-600 mb-4">
-            If you face any issues with your delivery or need to reschedule, please contact our support team immediately.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Link
-              to="/support/contact"
-              className="bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 transition-colors text-center"
-            >
-              Contact Support
-            </Link>
-            <a
-              href="tel:+918012345678"
-              className="border border-amber-600 text-amber-600 px-6 py-2 rounded-lg hover:bg-amber-50 transition-colors text-center"
-            >
-              Call: 1800-123-4567
-            </a>
-          </div>
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">7. Damaged Packages</h2>
+            <p>
+              If you receive a damaged package, please do not accept it. If damage is noticed after accepting delivery, contact us within 24 hours with photographs of the damaged package and products. See our <Link to="/returns" className="text-gray-900 underline">Return Policy</Link> for more details.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">8. Contact Us</h2>
+            <p>For shipping-related queries, please contact us:</p>
+            <p className="mt-2">
+              Email: contact@dlfoods.in<br />
+              Phone: +91 99403 80475<br />
+              Hours: Monday to Saturday, 9:00 AM - 6:00 PM IST
+            </p>
+          </section>
         </div>
       </div>
     </div>

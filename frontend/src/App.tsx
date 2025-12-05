@@ -17,6 +17,7 @@ import ShippingPage from './components/ShippingPage';
 import ReturnsPage from './components/ReturnsPage';
 import PrivacyPolicyPage from './components/PrivacyPolicyPage';
 import ContactSupportPage from './components/ContactSupportPage';
+import TermsPage from './components/TermsPage';
 import AuthSuccessPage from './pages/AuthSuccessPage';
 import { CartProvider } from './context/CartContext';
 import { ToastProvider } from './context/ToastContext';
@@ -95,6 +96,12 @@ function App() {
                   <Route path="/support/returns" element={<ReturnsPage />} />
                   <Route path="/support/privacy" element={<PrivacyPolicyPage />} />
                   <Route path="/support/contact" element={<ContactSupportPage />} />
+                  {/* Direct policy routes for checkout links */}
+                  <Route path="/shipping" element={<ShippingPage />} />
+                  <Route path="/returns" element={<ReturnsPage />} />
+                  <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                  <Route path="/terms" element={<TermsPage />} />
                   {/* Catch-all route for unmatched paths */}
                   <Route path="*" element={
                     <div className="min-h-screen flex items-center justify-center">

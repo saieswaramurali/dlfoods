@@ -243,7 +243,7 @@ export default function FAQPage() {
                 Contact Support
               </Link>
               <a
-                href="mailto:support@dlfoods.com"
+                href="mailto:contact@dlfoods.in"
                 className="border border-amber-600 text-amber-600 px-6 py-2 rounded-lg hover:bg-amber-50 transition-colors"
               >
                 Email Us

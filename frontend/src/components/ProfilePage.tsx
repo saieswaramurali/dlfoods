@@ -92,8 +92,14 @@ export default function ProfilePage() {
     setIsEditing(false);
   };
 
+  // Map backend status to display status (pending shows as confirmed to user)
+  const getDisplayStatus = (status: string) => {
+    return (status === 'pending' || status === 'confirmed') ? 'confirmed' : status;
+  };
+
   const getOrderStatusColor = (status: string) => {
-    switch (status) {
+    const displayStatus = getDisplayStatus(status);
+    switch (displayStatus) {
       case 'delivered':
         return 'text-green-700 bg-green-100';
       case 'out-for-delivery':
@@ -110,7 +116,8 @@ export default function ProfilePage() {
   };
 
   const getOrderStatusIcon = (status: string) => {
-    switch (status) {
+    const displayStatus = getDisplayStatus(status);
+    switch (displayStatus) {
       case 'delivered':
         return <CheckCircle className="w-4 h-4" />;
       case 'out-for-delivery':
@@ -127,7 +134,8 @@ export default function ProfilePage() {
   };
 
   const formatOrderStatus = (status: string) => {
-    return status.split('-').map(word => 
+    const displayStatus = getDisplayStatus(status);
+    return displayStatus.split('-').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
   };
